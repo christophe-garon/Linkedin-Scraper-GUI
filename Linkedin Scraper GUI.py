@@ -711,7 +711,7 @@ def count_interests():
     return common_companies, common_influencers, common_genders, common_locations
 
 
-# In[27]:
+# In[17]:
 
 
 def plot_interests(df1,df2,df3,df4):
@@ -896,7 +896,7 @@ def scrape_post_likers():
                 path = "//div[@class='{}']".format(class_name)
                 browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", browser.find_element_by_xpath(path))
 
-                time.sleep(2)
+                time.sleep(4)
                 
                 # Calculate new scroll height and compare with last scroll height
                 new_height = browser.execute_script(js_code)
@@ -918,12 +918,20 @@ def scrape_post_likers():
             browser.switch_to.window(browser.window_handles[0])
             
         except:
-            print("Let's export")
-            export_df()
-            post_index+=1
-            user_index = 1
-            time.sleep(2)
-            break
+            try:
+                browser.switch_to.window(browser.window_handles[1])
+                browser.close()
+                time.sleep(2)
+                browser.switch_to.window(browser.window_handles[0])
+            except:
+                browser.switch_to.window(browser.window_handles[0])
+                time.sleep(2)
+                print("Let's export")
+                export_df()
+                post_index+=1
+                user_index = 1
+                time.sleep(2)
+                break
 
                 
                 
