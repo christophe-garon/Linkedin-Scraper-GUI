@@ -180,7 +180,7 @@ def scroll():
         last_height = new_height
 
 
-# In[6]:
+# In[5]:
 
 
 def scrape_posts(containers):
@@ -273,7 +273,7 @@ def scrape_posts(containers):
             pass
 
 
-# In[7]:
+# In[6]:
 
 
 def export_post_data():
@@ -303,7 +303,7 @@ def export_post_data():
     
 
 
-# In[8]:
+# In[7]:
 
 
 try:
@@ -337,7 +337,7 @@ except:
     
 
 
-# In[23]:
+# In[8]:
 
 
 #Get any saved progress or create new variables
@@ -363,7 +363,7 @@ except:
     pass
 
 
-# In[24]:
+# In[9]:
 
 
 #Scrolls popups
@@ -392,7 +392,7 @@ def scroll_popup(class_name):
         
 
 
-# In[25]:
+# In[10]:
 
 
 #Function that estimates user age based on earliest school date or earlier work date
@@ -470,7 +470,7 @@ def est_age():
         
 
 
-# In[26]:
+# In[11]:
 
 
 #Function that Scrapes user data
@@ -614,7 +614,7 @@ def get_user_data():
         
 
 
-# In[27]:
+# In[12]:
 
 
 def word_counter(words):
@@ -640,7 +640,7 @@ def word_counter(words):
     return wordcount
 
 
-# In[28]:
+# In[13]:
 
 
 def get_df(wc):
@@ -666,7 +666,7 @@ def get_df(wc):
     return df
 
 
-# In[29]:
+# In[14]:
 
 
 def clean_list(interest):
@@ -677,7 +677,7 @@ def clean_list(interest):
     return clean_list
 
 
-# In[30]:
+# In[15]:
 
 
 def clean_interests(interest):
@@ -688,7 +688,7 @@ def clean_interests(interest):
     return clean_list
 
 
-# In[31]:
+# In[16]:
 
 
 def count_interests():
@@ -711,7 +711,7 @@ def count_interests():
     return common_companies, common_influencers, common_genders, common_locations
 
 
-# In[32]:
+# In[27]:
 
 
 def plot_interests(df1,df2,df3,df4):
@@ -735,9 +735,10 @@ def plot_interests(df1,df2,df3,df4):
     location_plot.set_ylabel('Locations')
     location_plot.figure.savefig("l_plot.png", dpi = 100, bbox_inches = "tight")
     
+    plt.close('all')
 
 
-# In[33]:
+# In[18]:
 
 
 def export_df():
@@ -833,7 +834,7 @@ def export_df():
     f.close()
 
 
-# In[34]:
+# In[19]:
 
 
 def current_time():
@@ -848,7 +849,7 @@ daily_limit = 200
 block_path = "//div[@class='artdeco-modal__content social-details-reactors-modal__content ember-view']"
 
 
-# In[35]:
+# In[20]:
 
 
 #Scraping the list of likers from the post
@@ -917,9 +918,9 @@ def scrape_post_likers():
             browser.switch_to.window(browser.window_handles[0])
             
         except:
-            post_index+=1
             print("Let's export")
             export_df()
+            post_index+=1
             user_index = 1
             time.sleep(2)
             break
@@ -958,7 +959,7 @@ def scrape_post_likers():
             time.sleep(1)
 
 
-# In[36]:
+# In[21]:
 
 
 #Advanced scrolling
@@ -995,11 +996,9 @@ def get_next_post():
                 break
             else:
                 last_height = new_height
-        
-    export_df()
 
 
-# In[37]:
+# In[22]:
 
 
 #Calling the Master function
