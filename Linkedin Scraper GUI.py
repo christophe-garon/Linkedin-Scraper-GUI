@@ -140,6 +140,21 @@ except:
 # In[3]:
 
 
+#Get the Meta Data
+try:
+    linkedin_pages = pd.read_csv("meta_data.csv")
+    interest_pages = linkedin_pages["Interest Pages"].to_list()
+    follower_counts = linkedin_pages["Follower Counts"].to_list()
+    follow_rate = linkedin_pages["Follow Rate"].to_list()
+except:
+    interest_pages = []
+    follower_counts = []
+    follow_rate = []
+
+
+# In[4]:
+
+
 #accessing Chromedriver
 browser = webdriver.Chrome('chromedriver')
 
@@ -155,7 +170,7 @@ elementID.send_keys(password)
 elementID.submit()
 
 
-# In[4]:
+# In[5]:
 
 
 #Scrolls the main page
@@ -180,7 +195,7 @@ def scroll():
         last_height = new_height
 
 
-# In[5]:
+# In[6]:
 
 
 def scrape_posts(containers):
@@ -273,7 +288,7 @@ def scrape_posts(containers):
             pass
 
 
-# In[6]:
+# In[7]:
 
 
 def export_post_data():
@@ -303,7 +318,7 @@ def export_post_data():
     
 
 
-# In[7]:
+# In[8]:
 
 
 try:
@@ -337,7 +352,7 @@ except:
     
 
 
-# In[8]:
+# In[9]:
 
 
 #Get any saved progress or create new variables
@@ -363,7 +378,7 @@ except:
     pass
 
 
-# In[9]:
+# In[10]:
 
 
 #Scrolls popups
@@ -392,7 +407,7 @@ def scroll_popup(class_name):
         
 
 
-# In[10]:
+# In[11]:
 
 
 #Function that estimates user age based on earliest school date or earlier work date
@@ -470,7 +485,7 @@ def est_age():
         
 
 
-# In[11]:
+# In[12]:
 
 
 #Function that Scrapes user data
@@ -570,7 +585,14 @@ def get_user_data():
             user_influencers = ""
             for i in influencer_list:
                 name = i.find("span",{"class":"pv-entity__summary-title-text"})
-                user_influencers += name.text.strip() + "^ "
+                name = name.text.strip()
+                user_influencers += name + "^ "
+
+                if name not in interest_pages:
+                    interest_pages.append(name)
+                    follower_count = i.find('p', {"class":"pv-entity__follower-count"}).text.strip()
+                    follower_count = follower_count.split(' ')
+                    follower_counts.append(follower_count[0])
 
             influencers.append(user_influencers)
 
@@ -601,9 +623,18 @@ def get_user_data():
             user_companies = ""
             for i in company_list:
                 name = i.find("span",{"class":"pv-entity__summary-title-text"})
-                user_companies += name.text.strip() + "^ "
+                name = name.text.strip()
+                user_companies += name + "^ "
+
+                if name not in interest_pages:
+                    interest_pages.append(name)
+                    follower_count = i.find('p', {"class":"pv-entity__follower-count"}).text.strip()
+                    follower_count = follower_count.split(' ')
+                    follower_counts.append(follower_count[0])
+
 
             companies.append(user_companies)
+                
 
         except:
             companies.append("No Companies^ ")
@@ -614,7 +645,7 @@ def get_user_data():
         
 
 
-# In[12]:
+# In[13]:
 
 
 def word_counter(words):
@@ -640,7 +671,7 @@ def word_counter(words):
     return wordcount
 
 
-# In[13]:
+# In[14]:
 
 
 def get_df(wc):
@@ -666,7 +697,7 @@ def get_df(wc):
     return df
 
 
-# In[14]:
+# In[15]:
 
 
 def clean_list(interest):
@@ -677,7 +708,7 @@ def clean_list(interest):
     return clean_list
 
 
-# In[15]:
+# In[16]:
 
 
 def clean_interests(interest):
@@ -688,7 +719,7 @@ def clean_interests(interest):
     return clean_list
 
 
-# In[16]:
+# In[17]:
 
 
 def count_interests():
@@ -711,7 +742,7 @@ def count_interests():
     return common_companies, common_influencers, common_genders, common_locations
 
 
-# In[17]:
+# In[18]:
 
 
 def plot_interests(df1,df2,df3,df4):
@@ -738,7 +769,7 @@ def plot_interests(df1,df2,df3,df4):
     plt.close('all')
 
 
-# In[18]:
+# In[19]:
 
 
 def export_df():
@@ -832,9 +863,26 @@ def export_df():
     f= open("{}_credentials.txt".format(company_name),"w+")
     f.write("username={}, password={}, page={}, post_index={}, user_index={}".format(username,password,page,post_index,user_index))
     f.close()
+    
+    #Calc the follow rate for interest pages
+    total_linkedin_users = 260000000
+    for item in follower_counts:
+        follow_percent = float(item.replace(',',''))/total_linkedin_users * 100
+        follow_rate.append(round(follow_percent,4))
+        
+    #Export the Meta Data
+    meta_data = {
+    "Interest Pages": interest_pages,
+    "Follower Counts": follower_counts,
+    "Follow Rate": follow_rate
+    }
+
+    meta_df = pd.DataFrame(meta_data)
+
+    meta_df.to_csv("meta_data.csv", encoding='utf-8', index=False)
 
 
-# In[19]:
+# In[20]:
 
 
 def current_time():
@@ -849,7 +897,7 @@ daily_limit = 200
 block_path = "//div[@class='artdeco-modal__content social-details-reactors-modal__content ember-view']"
 
 
-# In[20]:
+# In[21]:
 
 
 #Scraping the list of likers from the post
@@ -967,7 +1015,7 @@ def scrape_post_likers():
             time.sleep(1)
 
 
-# In[21]:
+# In[22]:
 
 
 #Advanced scrolling
@@ -1006,7 +1054,7 @@ def get_next_post():
                 last_height = new_height
 
 
-# In[22]:
+# In[23]:
 
 
 #Calling the Master function
