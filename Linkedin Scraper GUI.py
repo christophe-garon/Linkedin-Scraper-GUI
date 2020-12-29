@@ -137,7 +137,7 @@ except:
     f.close()
 
 
-# In[24]:
+# In[3]:
 
 
 #Get the Meta Data
@@ -155,6 +155,24 @@ except:
 # In[4]:
 
 
+interest_dict = dict(zip(interest_pages, follow_rate))
+
+
+# In[ ]:
+
+
+
+
+
+# In[5]:
+
+
+interest_dict.keys()
+
+
+# In[6]:
+
+
 #accessing Chromedriver
 browser = webdriver.Chrome('chromedriver')
 
@@ -170,7 +188,7 @@ elementID.send_keys(password)
 elementID.submit()
 
 
-# In[5]:
+# In[7]:
 
 
 #Scrolls the main page
@@ -195,7 +213,7 @@ def scroll():
         last_height = new_height
 
 
-# In[6]:
+# In[8]:
 
 
 def scrape_posts(containers):
@@ -288,7 +306,7 @@ def scrape_posts(containers):
             pass
 
 
-# In[7]:
+# In[9]:
 
 
 def export_post_data():
@@ -318,7 +336,7 @@ def export_post_data():
     
 
 
-# In[8]:
+# In[10]:
 
 
 try:
@@ -352,7 +370,7 @@ except:
     
 
 
-# In[9]:
+# In[11]:
 
 
 #Get any saved progress or create new variables
@@ -378,7 +396,7 @@ except:
     pass
 
 
-# In[10]:
+# In[12]:
 
 
 #Scrolls popups
@@ -407,7 +425,7 @@ def scroll_popup(class_name):
         
 
 
-# In[11]:
+# In[13]:
 
 
 #Function that estimates user age based on earliest school date or earlier work date
@@ -485,7 +503,7 @@ def est_age():
         
 
 
-# In[12]:
+# In[14]:
 
 
 #Function that Scrapes user data
@@ -587,9 +605,10 @@ def get_user_data():
                 name = i.find("span",{"class":"pv-entity__summary-title-text"})
                 name = name.text.strip()
                 user_influencers += name + "^ "
-
-                if name not in interest_pages:
-                    interest_pages.append(name)
+                cleaned_name = name.replace(",","")
+                
+                if cleaned_name not in interest_pages:
+                    interest_pages.append(cleaned_name)
                     follower_count = i.find('p', {"class":"pv-entity__follower-count"}).text.strip()
                     follower_count = follower_count.split(' ')
                     follower_count = follower_count[0]
@@ -597,8 +616,8 @@ def get_user_data():
                     
                     #Calc the follower rate
                     total_linkedin_users = 260000000
-                    follow_percent = float(follower_count.replace(',',''))/total_linkedin_users * 100
-                    follow_rate.append(round(follow_percent,4))
+                    follow_percent = float(follower_count.replace(",",""))/total_linkedin_users * 100
+                    follow_rate.append(follow_percent)
 
             influencers.append(user_influencers)
 
@@ -631,9 +650,10 @@ def get_user_data():
                 name = i.find("span",{"class":"pv-entity__summary-title-text"})
                 name = name.text.strip()
                 user_companies += name + "^ "
-
-                if name not in interest_pages:
-                    interest_pages.append(name)
+                cleaned_name = name.replace(",","")
+                
+                if cleaned_name not in interest_pages:
+                    interest_pages.append(cleaned_name)
                     follower_count = i.find('p', {"class":"pv-entity__follower-count"}).text.strip()
                     follower_count = follower_count.split(' ')
                     follower_count = follower_count[0]
@@ -641,8 +661,8 @@ def get_user_data():
                     
                     #Calc the follower rate
                     total_linkedin_users = 260000000
-                    follow_percent = float(follower_count.replace(',',''))/total_linkedin_users * 100
-                    follow_rate.append(round(follow_percent,4))
+                    follow_percent = float(follower_count.replace(",",""))/total_linkedin_users * 100
+                    follow_rate.append(follow_percent)
 
             companies.append(user_companies)
                 
@@ -656,7 +676,7 @@ def get_user_data():
         
 
 
-# In[13]:
+# In[15]:
 
 
 def word_counter(words):
@@ -682,7 +702,7 @@ def word_counter(words):
     return wordcount
 
 
-# In[14]:
+# In[16]:
 
 
 def get_df(wc):
@@ -694,21 +714,43 @@ def get_df(wc):
     words = []
     count = []
     percent = []
+    interest_index = []
+    interest_diff = []
     for item in trimmed_count:
         words.append(item[0])
         count.append(item[1])
         
     for c in count:
         percent.append(round(((c/total_scraped) * 100), 2))
+    
+    #make interest dictionary from meta data
+    interest_dict = dict(zip(interest_pages, follow_rate))
+            
+    n=0
+    for w in words:
+        if w in list(interest_dict.keys()):
+            if float(interest_dict[w]) != 0:
+                index = float(percent[n])/float(interest_dict[w])
+                interest_index.append(round(index,2))
+                interest_diff.append(round(float(percent[n])-float(interest_dict[w]),2))
+                n+=1
+            else:
+                interest_index.append("NA")
+                interest_diff.append("NA")
+                n+=1
+        else:
+            interest_index.append("NA")
+            interest_diff.append("NA")
+            n+=1
         
 
-    data = {"Word": words,"Count": count, "Percentage": percent}
+    data = {"Word": words,"Count": count, "Percentage": percent, "Index":interest_index, "Absolute Difference":interest_diff}
 
     df = pd.DataFrame(data, index =None)
     return df
 
 
-# In[15]:
+# In[17]:
 
 
 def clean_list(interest):
@@ -719,7 +761,7 @@ def clean_list(interest):
     return clean_list
 
 
-# In[16]:
+# In[18]:
 
 
 def clean_interests(interest):
@@ -730,7 +772,7 @@ def clean_interests(interest):
     return clean_list
 
 
-# In[17]:
+# In[19]:
 
 
 def count_interests():
@@ -753,7 +795,7 @@ def count_interests():
     return common_companies, common_influencers, common_genders, common_locations
 
 
-# In[18]:
+# In[20]:
 
 
 def plot_interests(df1,df2,df3,df4):
@@ -780,7 +822,7 @@ def plot_interests(df1,df2,df3,df4):
     plt.close('all')
 
 
-# In[19]:
+# In[21]:
 
 
 def export_df():
@@ -851,12 +893,12 @@ def export_df():
     #Adding plots to the sheets
     cws = wb["Company Interest"]
     c_img = openpyxl.drawing.image.Image('c_plot.png')
-    c_img.anchor = 'E5'
+    c_img.anchor = 'H5'
     cws.add_image(c_img)
 
     iws = wb["Influencer Interest"]
     i_img = openpyxl.drawing.image.Image('i_plot.png')
-    i_img.anchor = 'E5'
+    i_img.anchor = 'H5'
     iws.add_image(i_img)
     
     dws = wb["Demographic Stats"]
@@ -887,7 +929,7 @@ def export_df():
     meta_df.to_csv("meta_data.csv", encoding='utf-8', index=True)
 
 
-# In[20]:
+# In[22]:
 
 
 def current_time():
@@ -902,7 +944,7 @@ daily_limit = 200
 block_path = "//div[@class='artdeco-modal__content social-details-reactors-modal__content ember-view']"
 
 
-# In[21]:
+# In[23]:
 
 
 #Scraping the list of likers from the post
@@ -1020,7 +1062,7 @@ def scrape_post_likers():
             time.sleep(1)
 
 
-# In[22]:
+# In[24]:
 
 
 #Advanced scrolling
@@ -1059,7 +1101,7 @@ def get_next_post():
                 last_height = new_height
 
 
-# In[23]:
+# In[25]:
 
 
 #Calling the Master function
