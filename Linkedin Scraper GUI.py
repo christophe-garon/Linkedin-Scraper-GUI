@@ -1048,7 +1048,7 @@ def scrape_post_likers():
             #Stop if reached daily page view limit
             if daily_count >= daily_limit:
                 print("Daily page limit of "+daily_limit+" has been reached. Stopping for the day to prevent auto signout.")
-                while current_time() > "00:01":
+                while current_time() >= "01:00":
                     schedule.run_pending()
                     time.sleep(60)
                 daily_count = 0
