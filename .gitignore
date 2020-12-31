@@ -1,0 +1,9 @@
+Linkedin Followers Scraper.ipynb
+rei_credentials.txt
+.ipynb_checkpoints
+.DS_Store
+*.png
+*.xlsx
+rei_linkedin_backup.csv
+venv/
+*.ipynb
