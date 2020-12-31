@@ -980,7 +980,7 @@ def scrape_post_likers():
                 # Calculate new scroll height and compare with last scroll height
                 new_height = browser.execute_script(js_code)
                 if new_height == last_height:
-                    print("All users on post {} have been scraped".format(post_index))
+                    print("All users on post {} have been scraped".format(str(post_index)))
                     break
                 else:
                     last_height = new_height
@@ -1021,7 +1021,7 @@ def scrape_post_likers():
         if user_index % 10 == 0:
             try:
                 export_df()
-                print(user_index)
+                print("We have scraped {} users so far today. Saving our progress now.".format(str(daily_count)))
             except:
                 print("Hmmm...Failed to Export.")
 
@@ -1031,7 +1031,7 @@ def scrape_post_likers():
 
             #Stop if reached daily page view limit
             if daily_count >= daily_limit:
-                print("Daily page limit of "+daily_limit+" has been reached. Stopping for the day to prevent auto signout.")
+                print("Daily page limit of {} has been reached. Stopping for the day to prevent auto signout.".format(str(daily_limit)))
                 while current_time() >= "01:00":
                     schedule.run_pending()
                     time.sleep(60)
