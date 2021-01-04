@@ -12,6 +12,7 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup as bs
 import time
+import os
 from datetime import datetime
 import pandas as pd
 import re
@@ -104,7 +105,7 @@ company_name = page[33:-1]
 
 #See if credetial file exists and create a project if not
 try:
-    f= open("{}_credentials.txt".format(company_name),"r")
+    f= open("{}/{}_credentials.txt".format(company_name,company_name),"r")
     contents = f.read()
     username = contents.replace("=",",").split(",")[1]
     password = contents.replace("=",",").split(",")[3]
@@ -119,7 +120,16 @@ try:
     button.wait_variable(wait)
     
 except:
-    f= open("{}_credentials.txt".format(company_name),"w+")
+    
+    if os.path.isdir(company_name) == False:
+        try:
+            os.mkdir(company_name)
+        except OSError:
+            print ("Creation of the directory %s failed" % path)
+        else:
+            print ("Successfully created the directory %s " % path)
+        
+    f= open("{}/{}_credentials.txt".format(company_name,company_name),"w+")
     entry2 = get_username()
     entry3 = get_password()
 
@@ -135,6 +145,7 @@ except:
     user_index = 1
     f.write("username={}, password={}, page={}, post_index={}, user_index={}".format(username,password,page,post_index,user_index))
     f.close()
+        
 
 
 # In[3]:
@@ -152,7 +163,7 @@ except:
     follow_rate = []
 
 
-# In[6]:
+# In[4]:
 
 
 #accessing Chromedriver
@@ -170,7 +181,7 @@ elementID.send_keys(password)
 elementID.submit()
 
 
-# In[7]:
+# In[5]:
 
 
 #Scrolls the main page
@@ -195,7 +206,7 @@ def scroll():
         last_height = new_height
 
 
-# In[8]:
+# In[6]:
 
 
 def scrape_posts(containers):
@@ -288,7 +299,7 @@ def scrape_posts(containers):
             pass
 
 
-# In[9]:
+# In[7]:
 
 
 def export_post_data():
@@ -318,11 +329,11 @@ def export_post_data():
     
 
 
-# In[10]:
+# In[8]:
 
 
 try:
-    wb = load_workbook("{}_page_posts.xlsx".format(company_name))
+    wb = load_workbook("{}/{}_page_posts.xlsx".format(company_name,company_name))
 except: 
     browser.get(page + 'posts/')
     time.sleep(2)
@@ -352,12 +363,12 @@ except:
     
 
 
-# In[11]:
+# In[9]:
 
 
 #Get any saved progress or create new variables
 try:
-    scraped = pd.read_csv("{}_linkedin_backup.csv".format(company_name))
+    scraped = pd.read_csv("{}/{}_linkedin_backup.csv".format(company_name,company_name))
     liker_names = list(scraped["Id"])
     user_gender = list(scraped["Gender"])
     liker_locations = list(scraped["Location"])
@@ -378,7 +389,7 @@ except:
     pass
 
 
-# In[12]:
+# In[10]:
 
 
 #Scrolls popups
@@ -407,7 +418,7 @@ def scroll_popup(class_name):
         
 
 
-# In[13]:
+# In[11]:
 
 
 #Function that estimates user age based on earliest school date or earlier work date
@@ -478,14 +489,14 @@ def est_age():
         est_birth_year = int(work_start_year) - 22
         est_age = int(current_year) - est_birth_year
 
-    if est_age == -7961 or est_age == -7957:
+    if est_age <= 0:
         est_age = 'unknown'
     
     return est_age
         
 
 
-# In[14]:
+# In[12]:
 
 
 #Function that Scrapes user data
@@ -658,7 +669,7 @@ def get_user_data():
         
 
 
-# In[15]:
+# In[13]:
 
 
 def word_counter(words):
@@ -686,7 +697,7 @@ def word_counter(words):
     return wordcount
 
 
-# In[16]:
+# In[14]:
 
 
 def get_df(wc):
@@ -734,7 +745,7 @@ def get_df(wc):
     return df
 
 
-# In[17]:
+# In[15]:
 
 
 def clean_list(interest):
@@ -745,7 +756,7 @@ def clean_list(interest):
     return clean_list
 
 
-# In[18]:
+# In[16]:
 
 
 def clean_interests(interest):
@@ -756,7 +767,7 @@ def clean_interests(interest):
     return clean_list
 
 
-# In[19]:
+# In[17]:
 
 
 def count_interests():
@@ -779,34 +790,34 @@ def count_interests():
     return common_companies, common_influencers, common_genders, common_locations
 
 
-# In[20]:
+# In[18]:
 
 
 def plot_interests(df1,df2,df3,df4):
     company_plot = df1[0:24].plot.barh(x='Word',y='Percentage')
     company_plot.invert_yaxis()
     company_plot.set_ylabel('Companies')
-    company_plot.figure.savefig("c_plot.png", dpi = 100, bbox_inches = "tight")
+    company_plot.figure.savefig("{}/c_plot.png".format(company_name), dpi = 100, bbox_inches = "tight")
 
     influencer_plot = df2[0:24].plot.barh(x='Word',y='Percentage')
     influencer_plot.invert_yaxis()
     influencer_plot.set_ylabel('Influencers')
-    influencer_plot.figure.savefig("i_plot.png", dpi = 100, bbox_inches = "tight")
+    influencer_plot.figure.savefig("{}/i_plot.png".format(company_name), dpi = 100, bbox_inches = "tight")
     
     gender_plot = df3[0:24].plot.barh(x='Word',y='Percentage')
     gender_plot.invert_yaxis()
     gender_plot.set_ylabel('Gender')
-    gender_plot.figure.savefig("g_plot.png", dpi = 100, bbox_inches = "tight")
+    gender_plot.figure.savefig("{}/g_plot.png".format(company_name), dpi = 100, bbox_inches = "tight")
 
     location_plot = df4[0:24].plot.barh(x='Word',y='Percentage')
     location_plot.invert_yaxis()
     location_plot.set_ylabel('Locations')
-    location_plot.figure.savefig("l_plot.png", dpi = 100, bbox_inches = "tight")
+    location_plot.figure.savefig("{}/l_plot.png".format(company_name), dpi = 100, bbox_inches = "tight")
     
     plt.close('all')
 
 
-# In[21]:
+# In[19]:
 
 
 def export_df():
@@ -854,7 +865,7 @@ def export_df():
     
 
     #Exporting csv to program folder for backup
-    backup_df.to_csv("{}_linkedin_backup.csv".format(company_name), encoding='utf-8', index=True)
+    backup_df.to_csv("{}/{}_linkedin_backup.csv".format(company_name,company_name), encoding='utf-8', index=True)
     
     #Get data frames of interest counts
     common_companies, common_influencers, common_genders, common_locations = count_interests()
@@ -865,39 +876,39 @@ def export_df():
     time.sleep(1)
     
     #Create/Update Excel file
-    writer = pd.ExcelWriter("{}_linkedin.xlsx".format(company_name), engine='xlsxwriter')
+    writer = pd.ExcelWriter("{}/{}_linkedin.xlsx".format(company_name,company_name), engine='xlsxwriter')
     df.to_excel(writer, sheet_name='Page Egagers', index=False)
     common_companies.to_excel(writer, sheet_name='Company Interest', index=False)
     common_influencers.to_excel(writer, sheet_name='Influencer Interest', index=False)
     age_stats.to_excel(writer, sheet_name='Demographic Stats', index=True)
     writer.save()
     
-    wb = load_workbook("{}_linkedin.xlsx".format(company_name))
+    wb = load_workbook("{}/{}_linkedin.xlsx".format(company_name,company_name))
 
     #Adding plots to the sheets
     cws = wb["Company Interest"]
-    c_img = openpyxl.drawing.image.Image('c_plot.png')
+    c_img = openpyxl.drawing.image.Image('{}/c_plot.png'.format(company_name))
     c_img.anchor = 'H5'
     cws.add_image(c_img)
 
     iws = wb["Influencer Interest"]
-    i_img = openpyxl.drawing.image.Image('i_plot.png')
+    i_img = openpyxl.drawing.image.Image('{}/i_plot.png'.format(company_name))
     i_img.anchor = 'H5'
     iws.add_image(i_img)
     
     dws = wb["Demographic Stats"]
-    g_img = openpyxl.drawing.image.Image('g_plot.png')
+    g_img = openpyxl.drawing.image.Image('{}/g_plot.png'.format(company_name))
     g_img.anchor = 'D2'
     dws.add_image(g_img)
-    l_img = openpyxl.drawing.image.Image('l_plot.png')
+    l_img = openpyxl.drawing.image.Image('{}/l_plot.png'.format(company_name))
     l_img.anchor = 'B21'
     dws.add_image(l_img)
 
     #Save Excel file
-    wb.save("{}_linkedin.xlsx".format(company_name))
+    wb.save("{}/{}_linkedin.xlsx".format(company_name,company_name))
     
     #Keep Track of where we are in the foller list
-    f= open("{}_credentials.txt".format(company_name),"w+")
+    f= open("{}/{}_credentials.txt".format(company_name,company_name),"w+")
     f.write("username={}, password={}, page={}, post_index={}, user_index={}".format(username,password,page,post_index,user_index))
     f.close()
         
@@ -913,7 +924,7 @@ def export_df():
     meta_df.to_csv("meta_data.csv", encoding='utf-8', index=True)
 
 
-# In[22]:
+# In[20]:
 
 
 def current_time():
@@ -922,13 +933,13 @@ def current_time():
 
 #Keeping track of number of page visits per day to stay under the limit
 daily_count = 0
-daily_limit = random.randint(200,250)
+daily_limit = random.randint(150,225)
 
 #The path of the block that we need to select to scroll
 block_path = "//div[@class='artdeco-modal__content social-details-reactors-modal__content ember-view']"
 
 
-# In[23]:
+# In[21]:
 
 
 #Scraping the list of likers from the post
@@ -980,7 +991,7 @@ def scrape_post_likers():
                 # Calculate new scroll height and compare with last scroll height
                 new_height = browser.execute_script(js_code)
                 if new_height == last_height:
-                    print("All users on post {} have been scraped".format(str(post_index)))
+                    print("All users on post {} have been scraped".format(post_index))
                     break
                 else:
                     last_height = new_height
@@ -1018,20 +1029,22 @@ def scrape_post_likers():
         user_index+=1
         daily_count+=1
 
+
         if user_index % 10 == 0:
             try:
                 export_df()
-                print("We have scraped {} users so far today. Saving our progress now.".format(str(daily_count)))
+                print("Let's Export")
             except:
                 print("Hmmm...Failed to Export.")
 
 
             #Random long sleep function to prevent linkedin rate limit
             time.sleep(random.randint(200,1200))
-
+            print(daily_count)
+            
             #Stop if reached daily page view limit
             if daily_count >= daily_limit:
-                print("Daily page limit of {} has been reached. Stopping for the day to prevent auto signout.".format(str(daily_limit)))
+                print("Daily page limit has been reached. Stopping for the day to prevent auto signout.")
                 while current_time() >= "01:00":
                     schedule.run_pending()
                     time.sleep(60)
@@ -1046,7 +1059,7 @@ def scrape_post_likers():
             time.sleep(1)
 
 
-# In[24]:
+# In[22]:
 
 
 #Advanced scrolling
@@ -1079,13 +1092,13 @@ def get_next_post():
             # Calculate new scroll height and compare with last scroll height
             new_height = browser.execute_script("return document.body.scrollHeight")
             if new_height == last_height:
-                print("All posts have been scraped")
+                print("All posts have been scraped or daily limit has been reached.")
                 break
             else:
                 last_height = new_height
 
 
-# In[25]:
+# In[23]:
 
 
 #Calling the Master function
