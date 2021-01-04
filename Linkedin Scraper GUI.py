@@ -1033,14 +1033,13 @@ def scrape_post_likers():
         if user_index % 10 == 0:
             try:
                 export_df()
-                print("Let's Export")
+                print("We have scraped {} users so far today. Saving our progress now.".format(str(daily_count)))
             except:
                 print("Hmmm...Failed to Export.")
 
 
             #Random long sleep function to prevent linkedin rate limit
             time.sleep(random.randint(200,1200))
-            print(daily_count)
             
             #Stop if reached daily page view limit
             if daily_count >= daily_limit:
