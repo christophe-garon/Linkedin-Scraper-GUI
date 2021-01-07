@@ -6,3 +6,4 @@
 venv/
 *.ipynb
 *linkedin_backup.csv
+meta_data.csv
