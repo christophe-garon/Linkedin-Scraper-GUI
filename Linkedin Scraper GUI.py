@@ -127,7 +127,7 @@ except:
         except OSError:
             print ("Creation of the directory %s has failed" % company_name)
         else:
-            print ("Successfully created the directory %s " % comapany_name)
+            print ("Successfully created the directory %s " % company_name)
         
     f= open("{}/{}_credentials.txt".format(company_name,company_name),"w+")
     entry2 = get_username()
